@@ -42,28 +42,37 @@ function get_client_ip() {
     return $ipaddress;
 }
 if($_SERVER["HTTP_HOST"]=="localhost"){
-	//$ip="202.185.112.50";
-	$ip = get_client_ip();
+	$ip="202.185.112.50";
+	// $ip = get_client_ip();
 }
 else{
 	$ip = get_client_ip();
 }
 
 $details = json_decode(file_get_contents("http://ipinfo.io/{$ip}/json"));
-echo "<h5>IP : ".$ip."</h5>";
+echo "<h5>IP : ".$ip." (http://ipinfo.io)</h5>";
 echo "Your Current Location Is : <b>".$details->city."</b>"; // -> "Mountain View"
+
+$loc = $details->loc;
+$loc = split(",", $loc);
+
+echo "<pre>";print_r($details);echo "</pre>";
 ?>
-<hr>
-
-<h4>Your coordinates</h4>
-
-<p id="demo"></p>
 
 <div id="map-canvas"></div>
+<hr>
 
+<h4>Your coordinates (HTML5 Geolocation)</h4>
+
+<p id="demo"></p>
+<input type="hidden" id="latitude" value="<?php echo $loc[0] ?>">
+<input type="hidden" id="longitude" value="<?php echo $loc[1] ?>">
+
+<script src="https://maps.googleapis.com/maps/api/js"></script>
 <script>
 var x = document.getElementById("demo");
-
+// var latitude;
+// var longitude;
 getLocation(); // call direct function
 
 function getLocation() {
@@ -77,6 +86,7 @@ function getLocation() {
 function showPosition(position) {
 	var latitude=position.coords.latitude; 
 	var longitude=position.coords.longitude;
+
     x.innerHTML = "Latitude: " + latitude + 
     "<br>Longitude: " + longitude;	
 }
@@ -97,27 +107,30 @@ function showError(error) {
             break;
     }
 }
-</script>
-<script src="https://maps.googleapis.com/maps/api/js"></script>
-<script>
-  function initialize() {
-    var mapCanvas = document.getElementById('map-canvas');
 
-    var myLatlng = new google.maps.LatLng(3.1569485999999998, 101.71230299999999);
-    var mapOptions = {
-      center: myLatlng,
-      zoom: 15,
-      mapTypeId: google.maps.MapTypeId.ROADMAP
-    }
-    var map = new google.maps.Map(mapCanvas, mapOptions);
+function initialize() {
+	var mapCanvas = document.getElementById('map-canvas');
 
-    var marker = new google.maps.Marker({
-      position: myLatlng,
-      map: map,
-      title: 'Anda Disini'
-  	});
-  }
-  google.maps.event.addDomListener(window, 'load', initialize);
+	// get value from text box
+	var latitude = document.getElementById('latitude').value;
+	var longitude = document.getElementById('longitude').value;
+
+	var myLatlng = new google.maps.LatLng(latitude, longitude);
+	var mapOptions = {
+		center: myLatlng,
+		zoom: 15,
+		mapTypeId: google.maps.MapTypeId.ROADMAP
+	}
+	var map = new google.maps.Map(mapCanvas, mapOptions);
+
+	var marker = new google.maps.Marker({
+		position: myLatlng,
+		map: map,
+		title: 'Anda Disini'
+	});
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
 </script>
 <hr>
 </body>
