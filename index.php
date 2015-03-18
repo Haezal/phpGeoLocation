@@ -42,7 +42,8 @@ function get_client_ip() {
     return $ipaddress;
 }
 if($_SERVER["HTTP_HOST"]=="localhost"){
-	$ip="202.185.112.50";
+	//$ip="202.185.112.50";
+	$ip = get_client_ip();
 }
 else{
 	$ip = get_client_ip();
@@ -50,7 +51,7 @@ else{
 
 $details = json_decode(file_get_contents("http://ipinfo.io/{$ip}/json"));
 echo "<h5>IP : ".$ip."</h5>";
-echo "Your Current Location Is : <b>".$details->city."</b>, Region : ".$details->org; // -> "Mountain View"
+echo "Your Current Location Is : <b>".$details->city."</b>"; // -> "Mountain View"
 ?>
 <hr>
 
