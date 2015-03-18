@@ -4,7 +4,7 @@
 <style>
   #map-canvas {
     width: 500px;
-    height: 400px;
+    height: 250px;
   }
 </style>
 
@@ -12,16 +12,6 @@
 <body>
 
 <?php  
-/*
-"ip": "8.8.8.8",
-"hostname": "google-public-dns-a.google.com",
-"loc": "37.385999999999996,-122.0838",
-"org": "AS15169 Google Inc.",
-"city": "Mountain View",
-"region": "California",
-"country": "US",
-"phone": 650
-*/
 // Function to get the client IP address
 function get_client_ip() {
     $ipaddress = '';
@@ -50,7 +40,8 @@ else{
 }
 
 $details = json_decode(file_get_contents("http://ipinfo.io/{$ip}/json"));
-echo "<h5>IP : ".$ip." (http://ipinfo.io)</h5>";
+echo "<h2>Using : http://ipinfo.io</h2>";
+echo "<h5>IP : ".$ip."</h5>";
 echo "Your Current Location Is : <b>".$details->city."</b>"; // -> "Mountain View"
 
 $loc = $details->loc;
@@ -59,14 +50,16 @@ $loc = split(",", $loc);
 echo "<pre>";print_r($details);echo "</pre>";
 ?>
 
+<input type="hidden" id="latitude" value="<?php echo $loc[0] ?>">
+<input type="hidden" id="longitude" value="<?php echo $loc[1] ?>">
 <div id="map-canvas"></div>
 <hr>
 
-<h4>Your coordinates (HTML5 Geolocation)</h4>
+
+<h4>Using HTML5 Geolocation</h4>
 
 <p id="demo"></p>
-<input type="hidden" id="latitude" value="<?php echo $loc[0] ?>">
-<input type="hidden" id="longitude" value="<?php echo $loc[1] ?>">
+<div id="mapholder"></div>
 
 <script src="https://maps.googleapis.com/maps/api/js"></script>
 <script>
@@ -84,11 +77,25 @@ function getLocation() {
 }
 
 function showPosition(position) {
-	var latitude=position.coords.latitude; 
-	var longitude=position.coords.longitude;
+    lat = position.coords.latitude;
+    lon = position.coords.longitude;
+    latlon = new google.maps.LatLng(lat, lon)
+    mapholder = document.getElementById('mapholder')
+    mapholder.style.height = '250px';
+    mapholder.style.width = '500px';
 
-    x.innerHTML = "Latitude: " + latitude + 
-    "<br>Longitude: " + longitude;	
+    var myOptions = {
+    center:latlon,zoom:14,
+    mapTypeId:google.maps.MapTypeId.ROADMAP,
+    mapTypeControl:false,
+    navigationControlOptions:{style:google.maps.NavigationControlStyle.SMALL}
+    }
+    
+    var map = new google.maps.Map(document.getElementById("mapholder"), myOptions);
+    var marker = new google.maps.Marker({position:latlon,map:map,title:"You are here!"});
+
+    x.innerHTML = "Latitude: " + lat + 
+    "<br>Longitude: " + lon;	
 }
 
 function showError(error) {
@@ -129,7 +136,7 @@ function initialize() {
 		title: 'Anda Disini'
 	});
 }
-
+// show maps bagi yang dapat value dari http://ipinfo.io
 google.maps.event.addDomListener(window, 'load', initialize);
 </script>
 <hr>
